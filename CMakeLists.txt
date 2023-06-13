@@ -1,14 +1,17 @@
 ﻿cmake_minimum_required(VERSION 3.18)
 
-project({project_name})
-set(MUZZLE_ROOT "{muzzle_root}")
+project(game)
+#set(MUZZLE_ROOT "{muzzle_root}")
+set(MUZZLE_ROOT "../muzzle_legacy")
 set(MUZZLE_LIB_FOLDER ${MUZZLE_ROOT}/../Muzzle/deps)
 
-set(raudio_source_dir "{raudio_root}/src")
+set(raudio_source_dir "../raudio-standalone-fixed/src")
 
-INCLUDE_DIRECTORIES(${MUZZLE_ROOT}/include)
+INCLUDE_DIRECTORIES(${MUZZLE_ROOT}/include ${raudio_source_dir})
 LINK_DIRECTORIES(${MUZZLE_LIB_FOLDER}/glfw/lib)
 set(mz_source_dir ${MUZZLE_ROOT}/src)
+
+option(STBTT_RASTERIZER_FIX "Defines a macro which implements a fix for some fonts" OFF)
 
 #could use aux_source_directory() but its better to list each file to ensure new files are compiled
 #https://stackoverflow.com/a/25077976/10415312
@@ -36,7 +39,11 @@ set(raudio_source
 add_compile_definitions(RAUDIO_STANDALONE)
 add_compile_definitions(SUPPORT_FILEFORMAT_MP3)
 
-set(source main.c )
+if (${STBTT_RASTERIZER_FIX} MATCHES ON)
+    add_compile_definitions(STBTT_RASTERIZER_VERSION 1)
+endif ()
+
+set(source main.c include/application.c include/application.h include/safe_realloc.c include/safe_realloc.h include/loop.c include/input.c include/input.h)
 
 add_executable(main ${source} ${mz_source} ${raudio_source})
 
